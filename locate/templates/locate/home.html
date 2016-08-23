@@ -1,0 +1,10 @@
+{% extends 'locate/base.html' %}
+
+{% block content %}
+    <h1>Welcome: </h1>
+     <a href="{% url 'locate_mobile' %}">Locate Mobile</a><br>
+    <a href="{% url 'store_area' %}">store_area</a> <br>
+    <a href="{% url 'redraw_area' %}">redraw_area</a> <br>
+    <a href="/logout">LogOut</a>
+
+{% endblock %}

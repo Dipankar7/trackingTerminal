@@ -1,0 +1,151 @@
+{% extends 'locate/base.html' %}
+
+{% block content %}
+
+	<meta charset="utf-8" />
+	<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7/leaflet.css"/>
+	<link rel="stylesheet" href="http://leaflet.github.io/Leaflet.draw/leaflet.draw.css" />
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<table>
+	<tr>
+		<td>
+
+<div id="map" style="width: 800px; height: 600px"></div>
+	<script src="http://cdn.leafletjs.com/leaflet-0.7/leaflet.js"> </script>
+	<script src="http://leaflet.github.io/Leaflet.draw/leaflet.draw.js"> </script>
+<script>
+
+	var mapData={};
+
+
+    var map = L.map('map').setView([50.10815, 20.87948], 10);
+
+            mapLink = '<a href="http://openstreetmap.org">OpenStreetMap</a>';
+	L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; ' + mapLink + ' Contributors',
+            maxZoom: 18,
+     }).addTo(map);
+
+
+
+function addDataToMap(title,geoJSON,map) {
+       L.geoJson(geoJSON, {
+                pointToLayer: function(feature, latlng) {
+                    if (feature.properties.radius) {
+                        return new L.Circle(latlng, feature.properties.radius);
+                    }
+                    else
+                    {
+                    	return new L.marker(latlng);
+                    }
+                    return;
+                }
+            }).eachLayer(function(layer) {
+				layer.bindPopup(title);
+                layer.options.color = "#3c8db1",
+                layer.options.weight = 4,
+                layer.addTo(map);
+            });
+
+
+
+
+
+
+        }
+
+
+
+
+
+
+$(document).ready(function() {
+
+$('.button2').click(function() {
+    var area_add = document.getElementById("area_address").value;
+
+    $.getJSON({
+    url:"{% url 'redraw_area' %}",
+    data:"area_name="+area_add,
+    success:function(res){
+
+    	if(res.not_found)
+    	{
+
+    			alert("not found");
+    	}
+    	else
+    	{
+    	mapData=JSON.parse(res.Geo_Json);
+
+
+
+       	addDataToMap(res.area_name,mapData,map);
+        }
+    },
+    error:function(e){
+        window.alert(e);
+    }
+
+    });
+});
+
+
+});
+
+
+function fromLinkToMap(area_name_temp){
+
+$.getJSON({
+    url:"{% url 'redraw_area' %}",
+    data:"area_name="+area_name_temp,
+    success:function(res){
+
+    	if(res.not_found)
+    	{
+
+    			alert("not found");
+    	}
+    	else
+    	{
+    	mapData=JSON.parse(res.Geo_Json);
+
+
+
+       	addDataToMap(res.area_name,mapData,map);
+        }
+    },
+    error:function(e){
+        window.alert(e);
+    }
+
+    });
+
+}
+
+
+
+
+</script>
+Area Name: <input type="text" name="fname" id="area_address"><br>
+<input type="button" id="button2" value="Display on Map" class="button2"/>  <br>
+</td>
+		<td>
+			{% if area_list %}
+        <h2>Your Geofence:</h2>
+        <ul>
+        {% for i in area_list %}
+            <li><a href="#" title={{i}} onClick = "fromLinkToMap('{{i}}');" >{{i}}</a></li>
+        {% endfor %}
+        </ul>
+			{% endif %}
+		</td>
+</tr>
+	<tr>
+
+<p>{{area_name}}</p>
+<p>{{Geo_Json}}</p>
+<p>{{not_found}}</p>
+</tr>
+	</table>
+{% endblock %}
